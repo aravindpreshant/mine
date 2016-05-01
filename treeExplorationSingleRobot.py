@@ -105,6 +105,8 @@ def callback(data,curr_root,robot1=None,robot2=None,robot3=None,robot4=None):
     global prevStatus2
     global prevStatus3
     global prevStatus4
+    global height
+    global width
     f=[]
     print("callback called by ")
     if(robot1=="robot1"):
@@ -176,7 +178,7 @@ def callback(data,curr_root,robot1=None,robot2=None,robot3=None,robot4=None):
     while (scan_area_i <= height-1):
         scan_area_j= 0
         while(scan_area_j <= width-1): 
-            if (occupancyGridMatFin[scan_area_i][scan_area_j] == 0 and (((scan_area_i-1 >=0) and occupancyGridMatFin[scan_area_i -1][scan_area_j] == -1) or ((scan_area_j-1>=0) and occupancyGridMatFin[scan_area_i][scan_area_j -1] == -1) or ((scan_area_j+1<width) and occupancyGridMatFin[scan_area_i][scan_area_j +1]) == -1 or ((scan_area_i+1<height) and occupancyGridMatFin[scan_area_i+1][scan_area_j] == -1))):
+            if (occupancyGridMatFin[scan_area_i][scan_area_j] == 0 and  ( (scan_area_i==0 or scan_area_j==0 or scan_area_i==height or scan_area_j==width) or (((scan_area_i-1 >=0) and occupancyGridMatFin[scan_area_i -1][scan_area_j] == -1) or ((scan_area_j-1>=0) and occupancyGridMatFin[scan_area_i][scan_area_j -1] == -1) or ((scan_area_j+1<width) and occupancyGridMatFin[scan_area_i][scan_area_j +1]) == -1 or ((scan_area_i+1<height) and occupancyGridMatFin[scan_area_i+1][scan_area_j] == -1)))):
                 frontierCell=[]
                 frontierCell.append(scan_area_i)
                 frontierCell.append(scan_area_j)
@@ -613,14 +615,35 @@ def callback(data,curr_root,robot1=None,robot2=None,robot3=None,robot4=None):
         goal_cell=(front[len(front)/2])
         #frontier_cell_i=frontier_cell[0]
         #frontier_cell_j=frontier_cell[1]
-        f.append(goal_cell)
+        posex=pose_x +delta/2
+        posey=pose_y +delta/2
+        bx,by=getcoords(goal_cell)
+        a = (posey - by) / (posex - bx)
+        b = posey - a * posex
+        invalid_goal=1
+        # scan_area_i= 0
+        # while (scan_area_i < height):
+        #     scan_area_j=0
+        #     while(scan_area_j < width): 
+        #         px,py=getcoords([scan_area_i,scan_area_j])
+        #         if (((px>bx and px<posex)or (px<bx and px>posex))and((py>by and py<posey)or (py<by and py>posey))):
+        #             if (abs(py - (a*px+b)) <= epsilon):
+        #                 #f.append([scan_area_i,scan_area_j])
+        #                 if(occupancyGridMatFin[scan_area_i][scan_area_j]==100):
+        #                     invalid_goal=0
+        #         scan_area_j+=1
+        #     scan_area_i+=1
+
+        if(invalid_goal==1):
+            f.append(goal_cell)
+
         print("got here")
         goals.append(goal_cell)
         gx,gy=getcoords(goal_cell)
         goal_tup=(gx,gy)
         print(goal_tup)
         print(global_goals)
-        if ((gx,gy) not in global_goals and (gx+0.25,gy) not in global_goals and (gx-0.25,gy) not in global_goals and (gx,gy+0.25) not in global_goals and (gx,gy-0.25) not in global_goals):
+        if (invalid_goal==1 and (gx,gy) not in global_goals and (gx+0.25,gy) not in global_goals and (gx-0.25,gy) not in global_goals and (gx,gy+0.25) not in global_goals and (gx,gy-0.25) not in global_goals):
             global_goals.append(goal_tup)
             G.add_node(goal_tup)
             G.add_edge(curr_root,goal_tup)
@@ -691,7 +714,7 @@ def callback(data,curr_root,robot1=None,robot2=None,robot3=None,robot4=None):
             if(len(visited_nodes)!=len(global_goals)):
                 for g in global_goals:
                     gi,gj=getindices(g)
-                    if(g not in visited_nodes and (occupancyGridMatFin[gi-1][gj]==-1 or occupancyGridMatFin[gi][gj-1]==-1 or occupancyGridMatFin[gi+1][gj]==-1 or occupancyGridMatFin[gi][gj+1]==-1)):
+                    if(g not in visited_nodes and ((gi==0 or gj==0 or gi==height or gj==width) or  occupancyGridMatFin[gi-1][gj]==-1 or occupancyGridMatFin[gi][gj-1]==-1 or occupancyGridMatFin[gi+1][gj]==-1 or occupancyGridMatFin[gi][gj+1]==-1)):
                         print("unvisited node from other tree")
                         print(g)
                         robot1Goal=g
@@ -712,6 +735,8 @@ def popStackRobot1(prevNode,occupancyGridMatFin):
     global robot2Goal
     global robot3Goal
     global robot4Goal
+    global height
+    global width
     print("leaf popping")
     print("robot1")
     r=prevNode.keys()
@@ -722,7 +747,7 @@ def popStackRobot1(prevNode,occupancyGridMatFin):
     if(prevGoalList):
         for prevGoal in prevGoalList:
             gi,gj=getindices(prevGoal)
-            if(prevGoal not in visited_nodes and (occupancyGridMatFin[gi-1][gj]==-1 or occupancyGridMatFin[gi][gj-1]==-1 or occupancyGridMatFin[gi+1][gj]==-1 or occupancyGridMatFin[gi][gj+1]==-1)):
+            if(prevGoal not in visited_nodes and ( (gi==0 or gi==0 or gi==height or gj==width)  or  occupancyGridMatFin[gi-1][gj]==-1 or occupancyGridMatFin[gi][gj-1]==-1 or occupancyGridMatFin[gi+1][gj]==-1 or occupancyGridMatFin[gi][gj+1]==-1)):
                 print("got a previous goal")
                 print(prevGoal)
                 robot1Goal=prevGoal
@@ -736,13 +761,14 @@ def popStackRobot1(prevNode,occupancyGridMatFin):
         if(len(visited_nodes)!=len(global_goals)):
             for g in global_goals:
                 gi,gj=getindices(g)
-                if(g not in visited_nodes and (occupancyGridMatFin[gi-1][gj]==-1 or occupancyGridMatFin[gi][gj-1]==-1 or occupancyGridMatFin[gi+1][gj]==-1 or occupancyGridMatFin[gi][gj+1]==-1)):
+                if(g not in visited_nodes and ((gi==0 or gi==0 or gi==height or gj==width) or occupancyGridMatFin[gi-1][gj]==-1 or occupancyGridMatFin[gi][gj-1]==-1 or occupancyGridMatFin[gi+1][gj]==-1 or occupancyGridMatFin[gi][gj+1]==-1)):
                     print("topmost unvisited node from other tree")
                     print(g)
                     robot1Goal=g
                     #visited_nodes.append(robot1Goal)
                     sendGoal(robot1Goal,"robot1",occupancyGridMatFin)
                     #checkStatus(robot1Goal)
+
 
 def checkneighbourBVs(gl,global_BVs):
     gi,gj=getcoords(gl)
