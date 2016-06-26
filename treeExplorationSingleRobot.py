@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #launch and get the occupancy grid
 import rospy
-import roslib; roslib.load_manifest('technologicExploration')
+import roslib; roslib.load_manifest('technologicexploration')
 from std_msgs.msg import Bool
 from std_msgs.msg import Int8
 from nav_msgs.msg import (
@@ -57,6 +57,10 @@ robot1Goal=()
 robot2Goal=()
 robot3Goal=()
 robot4Goal=()
+global_counter=0
+height=0
+width=0
+delta=0.25
 
 prevStatus1=""
 prevStatus2=""
@@ -107,6 +111,7 @@ def callback(data,curr_root,robot1=None,robot2=None,robot3=None,robot4=None):
     global prevStatus4
     global height
     global width
+    global global_counter
     f=[]
     print("callback called by ")
     if(robot1=="robot1"):
@@ -132,8 +137,8 @@ def callback(data,curr_root,robot1=None,robot2=None,robot3=None,robot4=None):
 
     print("length of goals")
     print(len(global_goals))
-    delta=0.25
-    epsilon = 0.25
+    global delta
+    epsilon = 0.5
     frontierCells=[]
     frontier=[]
     allFrontiers=[]
@@ -316,15 +321,15 @@ def callback(data,curr_root,robot1=None,robot2=None,robot3=None,robot4=None):
                 global_BVs.append(bvc)
                 f.append(bv)
                 counter_to_check=0
-                if(bi>4 and occupancyGridMatFin[bi-4][bj] == 100):
-                    if(bj>5 and occupancyGridMatFin[bi][bj-5] == 0):
+                if(bi>1 and occupancyGridMatFin[bi-1][bj] == 100):
+                    if(bj>2 and occupancyGridMatFin[bi][bj-2] == 0):
                         clearance=1
                         while(bj-clearance!=0 and occupancyGridMatFin[bi][bj-clearance]!=100):
                             frontierLine.append([bi,bj-clearance])
                             clearance=clearance+1
                         dictFrontierLines[bear]=frontierLine
-                        goals.append([bi+5,bj-5])
-                        gx,gy=getcoords([bi+5,bj-5])
+                        goals.append([bi+2,bj-2])
+                        gx,gy=getcoords([bi+2,bj-2])
                         goal_tup=(gx,gy)
                         dictBVGoals[bv_tup]=goal_tup
                         if ((gx,gy) not in global_goals and (gx+0.25,gy) not in global_goals and (gx+0.25,gy+0.25) not in global_goals and (gx-0.25,gy) not in global_goals and (gx-0.25,gy-0.25) not in global_goals and (gx+0.25,gy-0.25) not in global_goals and (gx-0.25,gy+0.25) not in global_goals and (gx,gy+0.25) not in global_goals and (gx,gy-0.25) not in global_goals):
@@ -332,101 +337,101 @@ def callback(data,curr_root,robot1=None,robot2=None,robot3=None,robot4=None):
                             G.add_node(goal_tup)
                             G.add_edge(curr_root,goal_tup)
                             
-                    elif (bj< width-5 and occupancyGridMatFin[bi][bj+5] == 0):
+                    elif (bj< width-2 and occupancyGridMatFin[bi][bj+2] == 0):
                         clearance=1
                         while(bj+clearance!=width and occupancyGridMatFin[bi][bj+clearance]!=100 and occupancyGridMatFin[bi][bj+clearance]!=100):
                             frontierLine.append([bi,bj+clearance])
                             clearance=clearance+1
                         dictFrontierLines[bear]=frontierLine
-                        goals.append([bi+5,bj+5])
-                        gx,gy=getcoords([bi+5,bj+5])
+                        goals.append([bi+2,bj+2])
+                        gx,gy=getcoords([bi+2,bj+2])
                         goal_tup=(gx,gy)
                         dictBVGoals[bv_tup]=goal_tup
                         if ((gx,gy) not in global_goals and (gx+0.25,gy) not in global_goals and (gx-0.25,gy) not in global_goals and (gx,gy+0.25) not in global_goals and (gx,gy-0.25) not in global_goals):
                             global_goals.append(goal_tup)
                             G.add_node(goal_tup)
                             G.add_edge(curr_root,goal_tup)
-                elif(bi <height-4 and occupancyGridMatFin[bi+4][bj] == 100):
-                    if(bj>5 and occupancyGridMatFin[bi][bj-5] == 0):
+                elif(bi <height-1 and occupancyGridMatFin[bi+1][bj] == 100):
+                    if(bj>2 and occupancyGridMatFin[bi][bj-2] == 0):
                         clearance=1
                         while(bj-clearance!=0 and occupancyGridMatFin[bi][bj-clearance]!=100 and occupancyGridMatFin[bi][bj-clearance]!=-1):
                             frontierLine.append([bi,bj-clearance])
                             clearance=clearance+1
                         dictFrontierLines[bear]=frontierLine
-                        goals.append([bi-5,bj-5])
-                        gx,gy=getcoords([bi-5,bj-5])
+                        goals.append([bi-2,bj-2])
+                        gx,gy=getcoords([bi-2,bj-2])
                         goal_tup=(gx,gy)
                         dictBVGoals[bv_tup]=goal_tup
                         if ((gx,gy) not in global_goals and (gx+0.25,gy) not in global_goals and (gx-0.25,gy) not in global_goals and (gx,gy+0.25) not in global_goals and (gx,gy-0.25) not in global_goals):
                             global_goals.append(goal_tup)
                             G.add_node(goal_tup)
                             G.add_edge(curr_root,goal_tup)
-                    elif (bj< width-5 and occupancyGridMatFin[bi][bj+5] == 0):
+                    elif (bj< width-2 and occupancyGridMatFin[bi][bj+2] == 0):
                         clearance=1
                         while(bj+clearance!=width and occupancyGridMatFin[bi][bj+clearance]!=100 and occupancyGridMatFin[bi][bj+clearance]!=100):
                             frontierLine.append([bi,bj+clearance])
                             clearance=clearance+1
                         dictFrontierLines[bear]=frontierLine
-                        goals.append([bi-5,bj+5])
-                        gx,gy=getcoords([bi-5,bj+5])
+                        goals.append([bi-2,bj+2])
+                        gx,gy=getcoords([bi-2,bj+2])
                         goal_tup=(gx,gy)
                         dictBVGoals[bv_tup]=goal_tup
                         if ((gx,gy) not in global_goals and (gx+0.25,gy) not in global_goals and (gx-0.25,gy) not in global_goals and (gx,gy+0.25) not in global_goals and (gx,gy-0.25) not in global_goals):
                             global_goals.append(goal_tup)
                             G.add_node(goal_tup)
                             G.add_edge(curr_root,goal_tup)
-                elif(bj>4 and occupancyGridMatFin[bi][bj-4] == 100):
-                    if(bj>5 and occupancyGridMatFin[bi-5][bj] == 0):
+                elif(bj>1 and occupancyGridMatFin[bi][bj-1] == 100):
+                    if(bj>2 and occupancyGridMatFin[bi-2][bj] == 0):
                         clearance=1
                         while(bi-clearance!=0 and occupancyGridMatFin[bi-clearance][bj]!=100 and occupancyGridMatFin[bi-clearance][bj]!=-1):
                             frontierLine.append([bi-clearance,bj])
                             clearance=clearance+1
                         dictFrontierLines[bear]=frontierLine
-                        goals.append([bi-5,bj+5])
-                        gx,gy=getcoords([bi-5,bj+5])
+                        goals.append([bi-2,bj+2])
+                        gx,gy=getcoords([bi-2,bj+2])
                         goal_tup=(gx,gy)
                         dictBVGoals[bv_tup]=goal_tup
                         if ((gx,gy) not in global_goals and (gx+0.25,gy) not in global_goals and (gx-0.25,gy) not in global_goals and (gx,gy+0.25) not in global_goals and (gx,gy-0.25) not in global_goals):
                             global_goals.append(goal_tup)
                             G.add_node(goal_tup)
                             G.add_edge(curr_root,goal_tup)
-                    elif (bi<height-5 and occupancyGridMatFin[bi+5][bj] == 0):
+                    elif (bi<height-2 and occupancyGridMatFin[bi+2][bj] == 0):
                         clearance=1
                         while(bi+clearance!=height and occupancyGridMatFin[bi+clearance][bj]!=100 and occupancyGridMatFin[bi+clearance][bj]!=-1):
                             frontierLine.append([bi+clearance,bj])
                             clearance=clearance+1
                         dictFrontierLines[bear]=frontierLine
-                        goals.append([bi+5,bj+5])
-                        gx,gy=getcoords([bi+5,bj+5])
+                        goals.append([bi+2,bj+2])
+                        gx,gy=getcoords([bi+2,bj+2])
                         goal_tup=(gx,gy)
                         dictBVGoals[bv_tup]=goal_tup
                         if ((gx,gy) not in global_goals and (gx+0.25,gy) not in global_goals and (gx-0.25,gy) not in global_goals and (gx,gy+0.25) not in global_goals and (gx,gy-0.25) not in global_goals):
                             global_goals.append(goal_tup)
                             G.add_node(goal_tup)
                             G.add_edge(curr_root,goal_tup)
-                elif(bj<width-4 and occupancyGridMatFin[bi][bj+4] == 100):
+                elif(bj<width-1 and occupancyGridMatFin[bi][bj+1] == 100):
                     if(bi>5 and occupancyGridMatFin[bi-5][bj] == 0):
                         clearance=1
                         while(bi-clearance!=0 and occupancyGridMatFin[bi-clearance][bj]!=100 and occupancyGridMatFin[bi-clearance][bj]!=-1):
                             frontierLine.append([bi-clearance,bj])
                             clearance=clearance+1
                         dictFrontierLines[bear]=frontierLine
-                        goals.append([bi-5,bj-5])
-                        gx,gy=getcoords([bi-5,bj-5])
+                        goals.append([bi-2,bj-2])
+                        gx,gy=getcoords([bi-2,bj-2])
                         goal_tup=(gx,gy)
                         dictBVGoals[bv_tup]=goal_tup
                         if ((gx,gy) not in global_goals and (gx+0.25,gy) not in global_goals and (gx-0.25,gy) not in global_goals and (gx,gy+0.25) not in global_goals and (gx,gy-0.25) not in global_goals):
                             global_goals.append(goal_tup)
                             G.add_node(goal_tup)
                             G.add_edge(curr_root,goal_tup)
-                    elif (bi<height-5 and occupancyGridMatFin[bi+5][bj] == 0):
+                    elif (bi<height-2 and occupancyGridMatFin[bi+2][bj] == 0):
                         clearance=1
                         while(bi+clearance!=height and occupancyGridMatFin[bi+clearance][bj]!=100 and occupancyGridMatFin[bi+clearance][bj]!=-1):
                             frontierLine.append([bi+clearance,bj])
                             clearance=clearance+1
                         dictFrontierLines[bear]=frontierLine
-                        goals.append([bi+5,bj-5])
-                        gx,gy=getcoords([bi+5,bj-5])
+                        goals.append([bi+2,bj-2])
+                        gx,gy=getcoords([bi+2,bj-2])
                         goal_tup=(gx,gy)
                         dictBVGoals[bv_tup]=goal_tup
                         if ((gx,gy) not in global_goals and (gx+0.25,gy) not in global_goals and (gx-0.25,gy) not in global_goals and (gx,gy+0.25) not in global_goals and (gx,gy-0.25) not in global_goals):
@@ -579,8 +584,9 @@ def callback(data,curr_root,robot1=None,robot2=None,robot3=None,robot4=None):
                         glx,gly=getcoords(gl)
                         #f.append(gl)
                         if (checkneighbourBVs(gl,global_BVs)):
+                            print("here")
                             #f.append(gl)
-                            valid=0
+                            #valid=0
                     if(valid==1):
                         print("whole2")
                         print(currentFrontier)
@@ -599,7 +605,7 @@ def callback(data,curr_root,robot1=None,robot2=None,robot3=None,robot4=None):
     print("length before")
     print(len(listOfFrontiers))
 
-    frontierGoals=[elem for elem in listOfFrontiers if len(elem) > 5] 
+    frontierGoals=[elem for elem in listOfFrontiers if len(elem) > 3] 
     # counter=0
     # for front in frontierGoals:
     #     print(front)
@@ -621,72 +627,60 @@ def callback(data,curr_root,robot1=None,robot2=None,robot3=None,robot4=None):
         a = (posey - by) / (posex - bx)
         b = posey - a * posex
         invalid_goal=1
-        # scan_area_i= 0
-        # while (scan_area_i < height):
-        #     scan_area_j=0
-        #     while(scan_area_j < width): 
-        #         px,py=getcoords([scan_area_i,scan_area_j])
-        #         if (((px>bx and px<posex)or (px<bx and px>posex))and((py>by and py<posey)or (py<by and py>posey))):
-        #             if (abs(py - (a*px+b)) <= epsilon):
-        #                 #f.append([scan_area_i,scan_area_j])
-        #                 if(occupancyGridMatFin[scan_area_i][scan_area_j]==100):
-        #                     invalid_goal=0
-        #         scan_area_j+=1
-        #     scan_area_i+=1
-
-        if(invalid_goal==1):
-            f.append(goal_cell)
-
+        scan_area_i= 0
+        print("global_counter")
+        print(global_counter)
+        if(global_counter>1):
+            while (scan_area_i < height):
+                scan_area_j=0
+                while(scan_area_j < width):
+                    px,py=getcoords([scan_area_i,scan_area_j])
+                    if (((px>bx and px<posex)or (px<bx and px>posex))and((py>by and py<posey)or (py<by and py>posey))):
+                        if (abs(py - (a*px+b)) <= epsilon):
+                            #f.append([scan_area_i,scan_area_j])
+                            if(occupancyGridMatFin[scan_area_i][scan_area_j] in (100,-1) ):
+                                invalid_goal+=5
+                    scan_area_j+=1
+                scan_area_i+=1
+        rob=np.array((posex,posey))
+        gol=np.array((bx,by))
+        dist_gol_to_root=np.linalg.norm(rob-gol)
+        print("dist_gol_to_root")
+        print(dist_gol_to_root)
+        if(dist_gol_to_root>4.5 and curr_root!=(0,0)):
+            invalid_goal+=5
+        global_counter+=1
         print("got here")
         goals.append(goal_cell)
         gx,gy=getcoords(goal_cell)
         goal_tup=(gx,gy)
         print(goal_tup)
         print(global_goals)
-        if (invalid_goal==1 and (gx,gy) not in global_goals and (gx+0.25,gy) not in global_goals and (gx-0.25,gy) not in global_goals and (gx,gy+0.25) not in global_goals and (gx,gy-0.25) not in global_goals):
+        if (invalid_goal<5 and (gx,gy) not in global_goals and (gx+0.25,gy) not in global_goals and (gx-0.25,gy) not in global_goals and (gx,gy+0.25) not in global_goals and (gx,gy-0.25) not in global_goals):
             global_goals.append(goal_tup)
             G.add_node(goal_tup)
             G.add_edge(curr_root,goal_tup)
 
-    
-
-    plt.clf()
-    plt.title("Tree generated")
-    pos=graphviz_layout(G,prog='dot')
-    nx.draw(G,pos,with_labels=True,arrows=False)
-    plt.savefig('nx_test.png')
+    # plt.clf()
+    # plt.title("Tree generated")
+    # pos=graphviz_layout(G,prog='dot')
+    # nx.draw(G,pos,with_labels=True,arrows=False)
+    # plt.savefig('nx_test.png')
 
     node_in_tree={}
     
-    succ=G.successors(curr_root)
-    succ_temp = succ
-    for s in succ_temp:
+    actual_succ=G.successors(curr_root)
+    succ=actual_succ[:]
+    #succ_temp = succ
+    for s in actual_succ:
         print("checking s")
         print(s)
         if(s in visited_nodes):
             succ.remove(s)
-        if(robot1=="robot1"):
-            if(s==robot2Goal or s==robot3Goal or s==robot4Goal):
-                succ.remove(s)
-        elif(robot2=="robot2"):
-            if(s==robot1Goal or s==robot3Goal or s==robot4Goal):
-                succ.remove(s)
-        elif(robot1 =="both"):
-            if(s==robot3Goal or s==robot4Goal):
-                succ.remove(s)
-        elif(robot3=="robot3"):
-            if(s==robot1Goal or s==robot2Goal or s==robot4Goal):
-                succ.remove(s)
-        elif(robot4=="robot4"):
-            if(s==robot1Goal or s==robot2Goal or s==robot3Goal):
-                succ.remove(s)
-        elif(robot3 =="both"):
-            if(s==robot1Goal or s==robot2Goal):
-                succ.remove(s)
     print("visited_nodes")
     print(visited_nodes)
     print("actual successors")
-    print(succ_temp)
+    print(actual_succ)
     print("successors at")
     print(curr_root)
     print(succ)
@@ -714,7 +708,7 @@ def callback(data,curr_root,robot1=None,robot2=None,robot3=None,robot4=None):
             if(len(visited_nodes)!=len(global_goals)):
                 for g in global_goals:
                     gi,gj=getindices(g)
-                    if(g not in visited_nodes and ((gi==0 or gj==0 or gi==height or gj==width) or  occupancyGridMatFin[gi-1][gj]==-1 or occupancyGridMatFin[gi][gj-1]==-1 or occupancyGridMatFin[gi+1][gj]==-1 or occupancyGridMatFin[gi][gj+1]==-1)):
+                    if(g not in visited_nodes and (gi==0 or gj==0 or gi==height or gj==width or  occupancyGridMatFin[gi-1][gj]==-1 or occupancyGridMatFin[gi][gj-1]==-1 or occupancyGridMatFin[gi+1][gj]==-1 or occupancyGridMatFin[gi][gj+1]==-1)):
                         print("unvisited node from other tree")
                         print(g)
                         robot1Goal=g
@@ -747,7 +741,7 @@ def popStackRobot1(prevNode,occupancyGridMatFin):
     if(prevGoalList):
         for prevGoal in prevGoalList:
             gi,gj=getindices(prevGoal)
-            if(prevGoal not in visited_nodes and ( (gi==0 or gi==0 or gi==height or gj==width)  or  occupancyGridMatFin[gi-1][gj]==-1 or occupancyGridMatFin[gi][gj-1]==-1 or occupancyGridMatFin[gi+1][gj]==-1 or occupancyGridMatFin[gi][gj+1]==-1)):
+            if(prevGoal not in visited_nodes and ( gi==0 or gi==0 or gi==height or gj==width  or  occupancyGridMatFin[gi-1][gj]==-1 or occupancyGridMatFin[gi][gj-1]==-1 or occupancyGridMatFin[gi+1][gj]==-1 or occupancyGridMatFin[gi][gj+1]==-1)):
                 print("got a previous goal")
                 print(prevGoal)
                 robot1Goal=prevGoal
@@ -761,14 +755,13 @@ def popStackRobot1(prevNode,occupancyGridMatFin):
         if(len(visited_nodes)!=len(global_goals)):
             for g in global_goals:
                 gi,gj=getindices(g)
-                if(g not in visited_nodes and ((gi==0 or gi==0 or gi==height or gj==width) or occupancyGridMatFin[gi-1][gj]==-1 or occupancyGridMatFin[gi][gj-1]==-1 or occupancyGridMatFin[gi+1][gj]==-1 or occupancyGridMatFin[gi][gj+1]==-1)):
+                if(g not in visited_nodes and (gi==0 or gi==0 or gi==height or gj==width or occupancyGridMatFin[gi-1][gj]==-1 or occupancyGridMatFin[gi][gj-1]==-1 or occupancyGridMatFin[gi+1][gj]==-1 or occupancyGridMatFin[gi][gj+1]==-1)):
                     print("topmost unvisited node from other tree")
                     print(g)
                     robot1Goal=g
                     #visited_nodes.append(robot1Goal)
                     sendGoal(robot1Goal,"robot1",occupancyGridMatFin)
                     #checkStatus(robot1Goal)
-
 
 def checkneighbourBVs(gl,global_BVs):
     gi,gj=getcoords(gl)
@@ -867,7 +860,7 @@ def checkExisting(bvc):
     print("check existing called")
     global global_BVs
     f=[]
-    delta=0.25
+    global delta
     bi=(bvc[1] - orig_y)/delta
     bj=(bvc[0] - orig_x)/delta
 
@@ -894,7 +887,7 @@ def getFrontiers(pose_x,pose_y,occupancyGridMatFin):
     global stack
     global visited_poses
     length=800
-    delta=0.25
+    global delta
     size=100
     scan_range=40.0
     frontierCells=[]
@@ -934,7 +927,7 @@ def getFrontiers(pose_x,pose_y,occupancyGridMatFin):
 def publishFrontiers(frontier):
     global orig_x
     global orig_y
-    delta=0.25
+    global delta
     size=100
     print(orig_x)
     print(orig_y)
@@ -968,7 +961,7 @@ def sendGoalRectilinear(tup_goal,robotName):
     print("in goal")
     print(tup_goal)
     print(robotName)
-    delta=0.25
+    global delta
     goal_states = ['PENDING', 'ACTIVE', 'PREEMPTED', 
                        'SUCCEEDED', 'ABORTED', 'REJECTED',
                        'PREEMPTING', 'RECALLING', 'RECALLED',
@@ -1001,12 +994,12 @@ def sendGoal(tup_goal1,robotName,occupancyGridMatFin):
                        'SUCCEEDED', 'ABORTED', 'REJECTED',
                        'PREEMPTING', 'RECALLING', 'RECALLED',
                        'LOST']
-    topicName="/"
-    topicName+=robotName
-    topicName+="/move_base"
+    #topicName="/"
+    #topicName+=robotName
+    topicName="/move_base"
     move_base = actionlib.SimpleActionClient(topicName, MoveBaseAction)
     rospy.loginfo("Waiting for move_base action server...")
-    move_base.wait_for_server(rospy.Duration(60))
+    move_base.wait_for_server(rospy.Duration(300))
     rospy.loginfo("Connected to move base server")
     rospy.loginfo("Starting Exploration")
     #while not rospy.is_shutdown():
@@ -1028,10 +1021,10 @@ def sendGoal(tup_goal1,robotName,occupancyGridMatFin):
         if state == GoalStatus.SUCCEEDED:
             rospy.loginfo("Goal succeeded!")
             rospy.sleep(1)
-            rotateInPlace("robot1")
+            #rotateInPlace("robot1")
             msg = rospy.wait_for_message("/projected_map", OccupancyGrid)
             visited_nodes.append(tup_goal1)
-            #rotateInPlace("robot1")
+            rotateInPlace("robot1")
             callback(msg,tup_goal1,robot1="robot1",robot2=None,robot3=None,robot4=None)
         else:
             rospy.loginfo("Goal failed with error code: " + str(goal_states[state]))
@@ -1049,7 +1042,7 @@ def sendGoal(tup_goal1,robotName,occupancyGridMatFin):
                             robot1Goal=g
                             #visited_nodes.append(robot1Goal)
                             #cluster1Status="robot1"
-                            sendGoal(robot1Goal,"robot1")
+                            sendGoal(robot1Goal,"robot1",occupancyGridMatFin)
                             #checkStatus(robot1Goal,robot2Goal,robot3Goal,robot4Goal)
                 else:
                     explorationcomplete()
@@ -1093,7 +1086,7 @@ def PrevPos(goal_x,goal_y):
 def getcoords(frontier):
     global orig_x
     global orig_y
-    delta=0.25
+    global delta
     size=100
     i= frontier[0]
     j= frontier[1]
@@ -1104,7 +1097,7 @@ def getcoords(frontier):
 def getindices(frontier):
     global orig_x
     global orig_y
-    delta=0.25
+    global delta
     x= frontier[0]
     y= frontier[1]
     j = (x - orig_x)/delta
@@ -1115,25 +1108,28 @@ def scan(curr_root,robotName):
     global robot1Stack
     global robot2Stack
     print('Scanning...')
+    
+    current_pose=get_pose()
+    pose_x=current_pose.position.x
+    pose_y=current_pose.position.y
+    curr_root=(round(pose_x,2),round(pose_y,2))
     robot1Stack.append(curr_root)
-    robot2Stack.append(curr_root)
+    #robot2Stack.append(curr_root)
     try:
         msg = rospy.wait_for_message("/projected_map", OccupancyGrid)
     except:
         print("Exception thrown")
     #callback(msg)
-    robot_pose=get_pose(robotName)
+    #robot_pose=get_pose(robotName)
     
-    print(robot_pose)
+    #print(robot_pose)
 
     callback(msg,curr_root,"robot1",None,None,None)
    
 
 
-def get_pose(robotName):
-    top="/"
-    top+=str(robotName)
-    top+="_pose"
+def get_pose():
+    top="robot_pose"
     pose = rospy.wait_for_message(top, Pose)
     return pose
 
@@ -1142,13 +1138,17 @@ def insert_origin():
     global G
     print("Adding origin")
     global root
-    delta=0.25
+    global delta
     #current_pose=get_pose()
     #pose_x=current_pose.position.x
     #pose_y=current_pose.position.y
     #pose_i = int((round(pose_y,2)/delta + orig_y))
     #pose_j = int((round(pose_x,2)/delta + orig_x))
-    tup_pose=(0,0)
+    current_pose=get_pose()
+    pose_x=current_pose.position.x
+    pose_y=current_pose.position.y
+    tup_pose=(round(pose_x,2),round(pose_y,2))
+    #tup_pose=(0,0)
     print(tup_pose)
     G.add_node(tup_pose)
     #stack.append(current_pose)
@@ -1158,9 +1158,9 @@ def insert_origin():
 
 def rotateInPlace(robotName):
     print("This is to make the robot rotate in place!")
-    top='/'
-    top+=robotName
-    top+='/cmd_vel'
+    #top='/'
+    #top+=robotName
+    top='/cmd_vel'
     print(str(top))
     p = rospy.Publisher(top, Twist)
     twist = Twist()
